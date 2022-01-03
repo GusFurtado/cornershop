@@ -2,17 +2,14 @@
 
 """
 
-from typing import Union
+from typing import List, Union
 
-import pandas as pd
 import requests
 
 from .models import (
-    Aisle,
+    Branch,
     Country,
-    Product,
-    Search,
-    Store
+    Result
 )
 
 
@@ -26,53 +23,116 @@ class Cornershop:
         ZIP Code.
     country : str
         Two-letter code for a country.
+    json_format : bool, default=False
+        If True, all methods will return a json-style dictionary.
     
+    Methods
+    -------
+    search_branch(branch_id:str, query:str) -> cornershop.models.Branch
+    search_branch_group() -> dict
+    search_branches(query:str) -> list of cornershop.models.Results
+    search_country() -> list of cornershop.models.Countries
+
     """
 
     def __init__(
             self,
             locality: Union[str,int],
-            country: str
+            country: str,
+            json_format = False
         ):
 
         self.locality = locality
         self.country = country
+        self.json_format = json_format
 
 
     def __repr__(self) -> str:
-        return f'<cornershop.Cornershop: {self.locality}>'
+        return f'<cornershop.Cornershop: {self.locality}/{self.country}>'
 
 
     def __str__(self) -> str:
         return self.locality
 
 
-    def search_branches(self, query:str) -> pd.DataFrame:
+    def search_branches(
+            self,
+            query: str
+        ) -> Union[dict, List[Result]]:
+        """Search for all branches near the locality.
+
+        Parameters
+        ----------
+        query : str
+            Search query.
+
+        Returns
+        -------
+        list of cornershop.models.Result
+            List of models if attribute `json_format` is False.
+        dict
+            A json-style dictionary if `json_format` is True.
+        
+        """
+
         URL = f'https://cornershopapp.com/api/v2/branches/search?query={query}&locality={self.locality}&country={self.country}'
-        json_file = requests.get(URL).json()['results']
-        df = pd.DataFrame(json_file)
-        df.store = df.store.map(Store)
-        df.search_result = df.search_result.map(Search)
-        return df
+        json_file = requests.get(URL).json()
+        if self.json_format:
+            return json_file
+        return [Result(r) for r in json_file['results']]
 
 
-    def search_branch(self, branch_id:Union[str,int], query:str) -> pd.DataFrame:
+    def search_branch(
+            self,
+            branch_id: Union[str, int],
+            query: str
+        ) -> Union[dict, Branch]:
+        """Search for all branches near the locality.
+
+        Parameters
+        ----------
+        branch_id : str | int
+            ID of the desired branch.
+        query : str
+            Search query.
+
+        Returns
+        -------
+        cornershop.models.Branch
+            Branch model if attribute `json_format` is False.
+        dict
+            A json-style dictionary if `json_format` is True.
+        
+        """
+
         URL = f'https://cornershopapp.com/api/v2/branches/{branch_id}/search?query={query}'
-        df = pd.read_json(URL)
-        df.aisles = df.aisles.map(Aisle)
-        return df
+        json_file = requests.get(URL).json()
+        if self.json_format:
+            return json_file
+        return Branch(json_file)
 
 
-    def search_branch_groups(self) -> pd.DataFrame:
+    def search_branch_groups(self):
         URL = f'https://cornershopapp.com/api/v3/branch_groups?locality={self.locality}&country={self.country}'
         json_file = requests.get(URL).json()
-        df = pd.DataFrame(json_file)
-        return df
+        return json_file
 
 
-    def search_countries(self):
+    def search_countries(self) -> Union[dict, List[Country]]:
+        """Search for a list of available countries.
+        
+        Returns
+        -------
+        list of cornershop.models.Country
+            List of models if attribute `json_format` is False.
+        dict
+            A json-style dictionary if `json_format` is True.
+
+        """
+
         URL = r'https://cornershopapp.com/api/v1/countries'
-        df = pd.read_json(URL)
-        df.countries = df.countries.map(Country)
-        return df
+        json_file = requests.get(URL).json()
+        if self.json_format:
+            return json_file
+        return [Country(c) for c in json_file['countries']]
     
