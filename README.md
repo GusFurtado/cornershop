@@ -53,4 +53,4 @@ Set the `json_format` argument as `True` to return a json-style dictionaty inste
 ... )
 ```
 
-Check the [examples notebook](examples.ipynb) for more details.
+Check the [examples folder](examples) for more details about working with methods and working the models.

@@ -9,6 +9,7 @@ import requests
 from .models import (
     Branch,
     Country,
+    Group,
     Result
 )
 
@@ -115,7 +116,9 @@ class Cornershop:
     def search_branch_groups(self):
         URL = f'https://cornershopapp.com/api/v3/branch_groups?locality={self.locality}&country={self.country}'
         json_file = requests.get(URL).json()
-        return json_file
+        if self.json_format:
+            return json_file
+        return [Group(g) for g in json_file]
 
 
     def search_countries(self) -> Union[dict, List[Country]]:
