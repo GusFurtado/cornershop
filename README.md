@@ -8,7 +8,7 @@ Please, check their official website at: https://cornershopapp.com/
 
 ## Instalation
 
-- Soon
+- `pip install cornershop`
 
 ## Dependencies
 
@@ -53,4 +53,4 @@ Set the `json_format` argument as `True` to return a json-style dictionaty inste
 ... )
 ```
 
-Check the [examples folder](examples) for more details about working with methods and working the models.
+Check the [examples folder](examples) for more details about [working with methods](https://github.com/GusFurtado/cornershop/blob/main/examples/Working%20with%20Cornershop%20methods.ipynb) and [working with models](https://github.com/GusFurtado/cornershop/blob/main/examples/Working%20with%20Cornershop%20models.ipynb).
